@@ -1,0 +1,17 @@
+name: CinnaHorse
+author: Johan "Zephyyrr" Fogelström
+main: se.zephyyrr.minecraft.tod.cinnahorse.CinnaHorse
+version: 0.2
+website: http://minecraft.kbkompaniet.se
+
+
+commands:
+  horse:
+    description: Summons a awesome horse for admins to use to look awesome.
+    usage: /horse [player]
+    permission: cinnahorse.spawn
+    
+permissions:
+  cinnahorse.spawn:
+    description: Allows access to the CinnaHorse "horse" command.
+    default: op
