@@ -4,7 +4,8 @@
         <jar destfile="CinnaHorse.jar" filesetmanifest="mergewithoutmain">
             <fileset dir="bin"/>
         	<fileset dir="src"/>
-            <fileset file="plugin.yml"/>
+            <fileset file="plugin.yml" />
+        	<fileset file="config.yml" />
         </jar>
     </target>
 </project>
