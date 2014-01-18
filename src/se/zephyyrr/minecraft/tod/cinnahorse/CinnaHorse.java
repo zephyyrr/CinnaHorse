@@ -11,13 +11,14 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.*;
 import org.bukkit.entity.Horse.Variant;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-public class CinnaHorse extends JavaPlugin {
+public class CinnaHorse extends JavaPlugin implements Listener {
 	
 	Map<Player, Horse> horses;
 	
@@ -25,6 +26,7 @@ public class CinnaHorse extends JavaPlugin {
 	public void onEnable() {
 		getLogger().info("Initializing CinnaHorse");
 		horses = new HashMap<Player, Horse>();
+		getServer().getPluginManager().registerEvents(this, this);
 	}
 	
 	@Override
@@ -36,7 +38,6 @@ public class CinnaHorse extends JavaPlugin {
 			entry.getValue().setHealth(0); //Kill the beasts!
 			iter.remove();
 		}
-		
 	}
 	
 	@Override
@@ -83,7 +84,8 @@ public class CinnaHorse extends JavaPlugin {
 		
 		h.setOwner(p);
 		h.setCustomName("Shi");
-		h.getEquipment().setChestplate(new ItemStack(Material.SADDLE));
+		h.getInventory().setSaddle(new ItemStack(Material.SADDLE));
+		h.setPassenger(p);
 		h.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 2000, 2));
 		h.setRemoveWhenFarAway(true);
 		
@@ -91,7 +93,7 @@ public class CinnaHorse extends JavaPlugin {
 	}
 	
 	@EventHandler
-	public void onLogout(PlayerQuitEvent event) {
+	public void onQuit(PlayerQuitEvent event) {
 		Player p = event.getPlayer();
 		getLogger().info("Removing " + p.getName() + "'s horse due to quitting.");
 		if (horses != null && horses.containsKey(p)) {
@@ -99,5 +101,7 @@ public class CinnaHorse extends JavaPlugin {
 			horses.remove(p);
 		}
 	}
+	
+	//TODO Write handler for when player dismounts horse
 	
 }
