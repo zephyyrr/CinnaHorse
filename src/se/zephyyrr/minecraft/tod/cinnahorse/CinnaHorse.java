@@ -41,21 +41,25 @@ public class CinnaHorse extends JavaPlugin {
 	
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-		Player p;
+		Player p = null;
 		if (sender instanceof Player) {
 			p = (Player) sender;
-		} else if (args.length > 0) {
+		}
+		
+		if (args.length > 0) {
 			p = this.getServer().getPlayer(args[0]);
 			if (p == null) {
 				sender.sendMessage("Player not found.");
 				return false;
 			}
-		} else {
+		}
+		
+		if (p == null) {
 			return false;
 		}
 		
 		if (sender.hasPermission("cinnahorse.summon")) {
-			if (!horses.containsKey(sender)) {
+			if (!horses.containsKey(p) || horses.get(p).isDead()) {
 				Horse h = spawnHorse(p);
 				horses.put(p, h);
 			} else {
@@ -89,6 +93,7 @@ public class CinnaHorse extends JavaPlugin {
 	@EventHandler
 	public void onLogout(PlayerQuitEvent event) {
 		Player p = event.getPlayer();
+		getLogger().info("Removing " + p.getName() + "'s horse due to quitting.");
 		if (horses != null && horses.containsKey(p)) {
 			horses.get(p).setHealth(0);
 			horses.remove(p);
