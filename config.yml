@@ -1,0 +1,7 @@
+Notch:
+  Name: "Mojang"
+  Variant: "HORSE"
+  Color: "WHITE"
+  Style: "WHITEFIELD"
+  HEALTH: "50"
+  JumpStrength: 0.5
