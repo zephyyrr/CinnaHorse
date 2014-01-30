@@ -1,7 +1,13 @@
-Notch:
-  Name: "Mojang"
-  Variant: "HORSE"
-  Color: "WHITE"
-  Style: "WHITEFIELD"
-  HEALTH: "50"
-  JumpStrength: 0.5
+Defaults:
+  Name: "Kikin"
+  Variant: "UNDEAD"
+  Health: "60"
+  JumpStrength: 1
+Players:
+  Notch:
+    Name: "Mojang"
+    Variant: "HORSE"
+    Color: "WHITE"
+    Style: "WHITEFIELD"
+    Health: "50"
+    JumpStrength: 0.5
