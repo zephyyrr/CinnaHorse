@@ -25,16 +25,12 @@ public class CinnaHorse {
 	
 	public static Horse getHorse(Player p) {
 		Horse h = spawnHorse(p.getLocation(), getVariant(p), getStyle(p), getColor(p));
-		h.setJumpStrength(config.getDouble("Players." + p.getName() + ".JumpStrength",
-				config.getDouble("Defaults.JumpStrength", 1)));
-		h.setMaxHealth(config.getDouble("Players." + p.getName() + ".Health",
-				config.getDouble("Defaults.Health", 10)));
-		h.setHealth(config.getDouble(p.getName() + ".Health",
-				config.getDouble("Defaults.Health", 10)));
+		h.setJumpStrength(getJumpStrength(p));
+		h.setMaxHealth(getMaxHealth(p));
+		h.setHealth(getMaxHealth(p));
 
 		h.setOwner(p);
-		h.setCustomName(config.getString("Players." + p.getName() + ".Name",
-				config.getString("Defaults.Name", "Apple Jack")));
+		h.setCustomName(getName(p));
 		h.setPassenger(p);
 		h.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 100000, 2));
 
@@ -57,8 +53,18 @@ public class CinnaHorse {
 		h.setStyle(style);
 		return h;
 	}
+	
+	public static String getName(Player p) {
+		return config.getString("Players." + p.getName() + ".Name",
+				config.getString("Defaults.Name", "Horse"));
+	}
+	
+	public static double getMaxHealth(Player p) {
+		return config.getDouble("Players." + p.getName() + ".Health",
+				config.getDouble("Defaults.Health", 20));
+	}
 
-	private static Horse.Style getStyle(Player p) {
+	public static Horse.Style getStyle(Player p) {
 		Horse.Style style;
 		String sstyle = config.getString(
 				"Players." + p.getName() + ".Style",
@@ -88,7 +94,7 @@ public class CinnaHorse {
 		return style;
 	}
 
-	private static Horse.Color getColor(Player p) {
+	public static Horse.Color getColor(Player p) {
 		Horse.Color color;
 		String scolor = config.getString(
 				"Players." + p.getName() + ".Color",
@@ -126,7 +132,7 @@ public class CinnaHorse {
 		return color;
 	}
 
-	private static Variant getVariant(Player p) {
+	public static Variant getVariant(Player p) {
 		Variant var;
 		String svar = config.getString(
 				"Players." + p.getName() + ".Variant",
@@ -154,6 +160,11 @@ public class CinnaHorse {
 			break;
 		}
 		return var;
+	}
+	
+	public static double getJumpStrength(Player p) {
+		return config.getDouble("Players." + p.getName() + ".JumpStrength",
+				config.getDouble("Defaults.JumpStrength", 1));
 	}
 
 	// TODO Write handler for when player dismounts horse

@@ -1,8 +1,8 @@
 package se.zephyyrr.minecraft.tod.cinnahorse;
 
-import java.time.Instant;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.bukkit.entity.Horse;
@@ -14,6 +14,8 @@ public class RentalAgency {
 	private Map<Player, Calendar> timelimits;
 	
 	public RentalAgency(Plugin p) {
+		rentals = new HashMap<Player, Horse>();
+		timelimits = new HashMap<Player, Calendar>();
 		p.getServer().getScheduler().runTaskTimer(p, () -> {
 			Date now = new Date();
 			// Loop over all rentals

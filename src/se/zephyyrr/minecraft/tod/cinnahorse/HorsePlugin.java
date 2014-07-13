@@ -66,7 +66,13 @@ public class HorsePlugin extends JavaPlugin implements Listener {
 		if (p == null) {
 			return false;
 		}
-		rentals.rent(p, 8000); //TODO read limit from args and adjust cost.
+		if (p != sender && !sender.hasPermission("cinnahorse.rent.others")) {
+			sender.sendMessage("Not enough permissions to do rent horses for others.");
+			return true;
+		}
+		if (sender.hasPermission("cinnahorse.rent")) {
+			rentals.rent(p, 8000); //TODO read limit from args and adjust cost.
+		}
 		return false;
 	}
 
@@ -88,8 +94,33 @@ public class HorsePlugin extends JavaPlugin implements Listener {
 	}
 
 	private boolean listHorse(CommandSender sender, String[] args) {
-		// TODO Auto-generated method stub
-		return false;
+		if (sender.hasPermission("cinnahorse.list")) {
+			sender.sendMessage("Not enough permissions to list horses.");
+			return true;
+		}
+		
+		Player p = getTarget(sender, args);
+		if (p == null) {
+			return false;
+		}
+		
+		if (p != sender && !sender.hasPermission("cinnahorse.list.others")) {
+			sender.sendMessage("Not enough permissions to list others horses.");
+			return true;
+		}
+		
+		sender.sendMessage("| Horse of " + p.getName());
+		sender.sendMessage("| Name: " + CinnaHorse.getName(p));
+		sender.sendMessage("| Health: " + CinnaHorse.getMaxHealth(p));
+		sender.sendMessage("| Jump Strength: " + CinnaHorse.getJumpStrength(p));
+		
+		Horse.Variant variant = CinnaHorse.getVariant(p);
+		sender.sendMessage("| Variant: " + variant);
+		if (variant == Horse.Variant.HORSE) {
+			sender.sendMessage("| Style: " + CinnaHorse.getStyle(p));
+			sender.sendMessage("| Color: " + CinnaHorse.getColor(p));
+		}
+		return true;
 	}
 
 	private boolean setHorse(CommandSender sender, String[] args) {
