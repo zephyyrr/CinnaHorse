@@ -1,8 +1,8 @@
 name: CinnaHorse
 author: Johan "Zephyyrr" Fogelstrom
-main: se.zephyyrr.minecraft.tod.cinnahorse.CinnaHorse
+main: se.zephyyrr.minecraft.tod.cinnahorse.HorsePlugin
 version: 0.9
-website: http://minecraft.kbkompaniet.se
+website: http://talesofdertinia.com
 
 
 commands:
