@@ -24,6 +24,7 @@ public class HorsePlugin extends JavaPlugin implements Listener {
 		horses = new HashMap<Player, Horse>();
 		rentals = new RentalAgency(this);
 		getServer().getPluginManager().registerEvents(this, this);
+		CinnaHorse.config = getConfig();
 	}
 
 	@Override
@@ -94,7 +95,7 @@ public class HorsePlugin extends JavaPlugin implements Listener {
 	}
 
 	private boolean listHorse(CommandSender sender, String[] args) {
-		if (sender.hasPermission("cinnahorse.list")) {
+		if (!sender.hasPermission("cinnahorse.list")) {
 			sender.sendMessage("Not enough permissions to list horses.");
 			return true;
 		}
@@ -150,7 +151,8 @@ public class HorsePlugin extends JavaPlugin implements Listener {
 	}
 
 	private boolean reloadConfiguration() {
-		reloadConfiguration();
+		reloadConfig();
+		CinnaHorse.config = getConfig();
 		return true;
 	}
 	
