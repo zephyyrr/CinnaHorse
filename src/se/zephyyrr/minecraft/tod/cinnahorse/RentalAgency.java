@@ -86,16 +86,16 @@ public class RentalAgency {
 			Player ppayer = (Player) payer;
 			boolean payDeposit = rider.equals(payer);
 			
-			if (!econ.has(ppayer, getRentCost()*minutes + (payDeposit ? getDeposit() : 0))) {
+			if (!econ.has(ppayer, getRentCost(minutes) + (payDeposit ? getDeposit() : 0))) {
 				payer.sendMessage("Not enough money to pay the rent.");
-				payer.sendMessage("The cost is " + getRentCost()
+				payer.sendMessage("The cost is " + getRentCost(minutes)
 						+ " and " + getDeposit() + " in deposit.");
 				throw new InsufficientResourcesException();
 			}
 
-			if (getRentCost() > 0) {
+			if (getRentCost(minutes) > 0) {
 				EconomyResponse resp = econ.withdrawPlayer(ppayer,
-						getRentCost());
+						getRentCost(minutes));
 				if (!resp.transactionSuccess()) {
 					throw new RuntimeException("Unsuccessfull payment transaction.");
 				}
@@ -147,15 +147,15 @@ public class RentalAgency {
 			return;
 		}
 		if (!free) {			
-			if (!econ.has(payer, getRentCost()*minutes)) {
+			if (!econ.has(payer, getRentCost(minutes))) {
 				payer.sendMessage("Not enough money to pay the rent.");
-				payer.sendMessage("The cost is " + getRentCost() + " " + econ.currencyNamePlural() + ".");
+				payer.sendMessage("The cost is " + getRentCost(minutes) + " " + econ.currencyNamePlural() + ".");
 				throw new InsufficientResourcesException();
 			}
 
-			if (getRentCost() > 0) {
+			if (getRentCost(minutes) > 0) {
 				EconomyResponse resp = econ.withdrawPlayer(payer,
-						getRentCost());
+						getRentCost(minutes));
 				if (!resp.transactionSuccess()) {
 					throw new RuntimeException("Unsuccessfull payment transaction.");
 				}
@@ -167,13 +167,13 @@ public class RentalAgency {
 
 	private void refund(Player rider, CommandSender payer, int minutes) {
 		if (!free && payer instanceof Player) {
-			econ.depositPlayer((Player) payer, getRentCost()*minutes + 
+			econ.depositPlayer((Player) payer, getRentCost(minutes) + 
 				(deposits.containsKey(rider) ? deposits.get(rider) : 0));
 		}
 	}
 
-	public double getRentCost() {
-		return config.getDouble("Cost", 1);
+	public double getRentCost(int minutes) {
+		return config.getDouble("Cost", 1)*minutes;
 	}
 
 	public double getDeposit() {
