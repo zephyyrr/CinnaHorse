@@ -1,17 +1,30 @@
 name: CinnaHorse
 author: Johan "Zephyyrr" Fogelstrom
 main: se.zephyyrr.minecraft.tod.cinnahorse.HorsePlugin
-version: 0.9
+version: 1.0
 website: http://talesofdertinia.com
 
 
 commands:
   horse:
     description: Summons a awesome horse for admins to use to look awesome. Or reloads config file.
-    usage: /horse {summon, reload} [player]
+    usage: /horse {summon, reload, list, rent} [player]
     permission: cinnahorse.spawn
     
 permissions:
-  cinnahorse.spawn:
-    description: Allows access to the CinnaHorse "horse" command.
+  cinnahorse.summon:
+    description: Allows access to the CinnaHorse "summon" command.
     default: op
+  cinnahorse.rent:
+    description: Allows renting horses.
+    default: op
+  cinnahorse.rent.others:
+    description: Allows renting horses for others.
+    default: op
+  cinnahorse.list:
+    description: Allows listing horses.
+    default: op
+  cinnahorse.list.others:
+    description: Allows listing horses for others.
+    default: op
+  

@@ -5,6 +5,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.naming.InsufficientResourcesException;
+
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Horse;
@@ -36,6 +38,7 @@ public class HorsePlugin extends JavaPlugin implements Listener {
 			entry.getValue().setHealth(0); // Kill the beasts!
 			iter.remove();
 		}
+		rentals.revoke();
 	}
 
 	@Override
@@ -63,7 +66,17 @@ public class HorsePlugin extends JavaPlugin implements Listener {
 	}
 
 	private boolean rentHorse(CommandSender sender, String[] args) {
-		Player p = getTarget(sender, args);
+		Player p = null;
+		int minutes = 0;
+		if (args.length > 2) {
+			p = getTarget(sender, args);
+			minutes = Integer.parseInt(args[2]);
+		} else if (p instanceof Player && args.length > 1) {
+			p = (Player) sender;
+			minutes = Integer.parseInt(args[1]);
+		} else {
+			return false;
+		}
 		if (p == null) {
 			return false;
 		}
@@ -71,10 +84,31 @@ public class HorsePlugin extends JavaPlugin implements Listener {
 			sender.sendMessage("Not enough permissions to do rent horses for others.");
 			return true;
 		}
+
 		if (sender.hasPermission("cinnahorse.rent")) {
-			rentals.rent(p, 8000); //TODO read limit from args and adjust cost.
+			if (!rentals.isRenting(p)) {
+				try {
+					rentals.rent(p, p, minutes);
+				} catch (InsufficientResourcesException e) {
+
+					return true;
+				} catch (RuntimeException e) {
+					sender.sendMessage("Unable to process payment. Please check your funds.");
+					return true;
+				}
+			} else {
+				/*
+				 * sender.sendMessage(p.getName() + " has " +
+				 * rentals.getRemainingTime(p) / 1000 + " seconds remaining.");
+				 */
+				try {
+					rentals.increaseTimelimit(p, p, minutes);
+				} catch (InsufficientResourcesException e) {
+					return true;
+				}
+			}
 		}
-		return false;
+		return true;
 	}
 
 	private Player getTarget(CommandSender sender, String[] args) {
@@ -99,22 +133,22 @@ public class HorsePlugin extends JavaPlugin implements Listener {
 			sender.sendMessage("Not enough permissions to list horses.");
 			return true;
 		}
-		
+
 		Player p = getTarget(sender, args);
 		if (p == null) {
 			return false;
 		}
-		
+
 		if (p != sender && !sender.hasPermission("cinnahorse.list.others")) {
 			sender.sendMessage("Not enough permissions to list others horses.");
 			return true;
 		}
-		
+
 		sender.sendMessage("| Horse of " + p.getName());
 		sender.sendMessage("| Name: " + CinnaHorse.getName(p));
 		sender.sendMessage("| Health: " + CinnaHorse.getMaxHealth(p));
 		sender.sendMessage("| Jump Strength: " + CinnaHorse.getJumpStrength(p));
-		
+
 		Horse.Variant variant = CinnaHorse.getVariant(p);
 		sender.sendMessage("| Variant: " + variant);
 		if (variant == Horse.Variant.HORSE) {
@@ -128,7 +162,7 @@ public class HorsePlugin extends JavaPlugin implements Listener {
 		// TODO Auto-generated method stub
 		return false;
 	}
-	
+
 	private boolean summonHorse(CommandSender sender, String[] args) {
 		Player p = getTarget(sender, args);
 		if (p == null) {
@@ -155,7 +189,7 @@ public class HorsePlugin extends JavaPlugin implements Listener {
 		CinnaHorse.config = getConfig();
 		return true;
 	}
-	
+
 	@EventHandler
 	public void onQuit(PlayerQuitEvent event) {
 		Player p = event.getPlayer();
@@ -164,6 +198,9 @@ public class HorsePlugin extends JavaPlugin implements Listener {
 		if (horses != null && horses.containsKey(p)) {
 			horses.get(p).setHealth(0);
 			horses.remove(p);
+		}
+		if (rentals.isRenting(p)) {
+			rentals.revoke(p);
 		}
 	}
 }

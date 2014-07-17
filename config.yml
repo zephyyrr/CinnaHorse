@@ -12,3 +12,8 @@ Players:
     Style: "WHITEFIELD"
     Health: "50"
     JumpStrength: 0.5
+Rental:
+  Economy: true
+  Cost: 1.0
+  Deposit: 5.0
+  FreeSaddles: false
