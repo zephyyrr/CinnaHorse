@@ -60,9 +60,35 @@ public class HorsePlugin extends JavaPlugin implements Listener {
 			return listHorse(sender, args);
 		case "rent":
 			return rentHorse(sender, args);
+		case "time":
+			return rentalTimelimit(sender, args);
 		}
 
 		return false;
+	}
+
+	private boolean rentalTimelimit(CommandSender sender, String[] args) {
+		if (!sender.hasPermission("cinnahorse.time")) {
+			sender.sendMessage("Not enough permissions to check timelimits.");
+			return true;
+		}
+		Player p = getTarget(sender, args);
+		if (p == null) {
+			return false;
+		}
+
+		if (!p.equals(sender) && !p.hasPermission("cinnahorse.time.others")) {
+			sender.sendMessage("Not enough permissions to check timelimits of others.");
+			return true;
+		}
+		if (rentals.isRenting(p)) {
+			sender.sendMessage(p.getName() + " has "
+					+ rentals.getRemainingTime(p) / 1000
+					+ " seconds remaining.");
+		} else {
+			sender.sendMessage(p.getName() + " is currently not renting anything.");
+		}
+		return true;
 	}
 
 	private boolean rentHorse(CommandSender sender, String[] args) {
@@ -71,7 +97,7 @@ public class HorsePlugin extends JavaPlugin implements Listener {
 		if (args.length > 2) {
 			p = getTarget(sender, args);
 			minutes = Integer.parseInt(args[2]);
-		} else if (p instanceof Player && args.length > 1) {
+		} else if (sender instanceof Player && args.length > 1) {
 			p = (Player) sender;
 			minutes = Integer.parseInt(args[1]);
 		} else {
@@ -89,24 +115,22 @@ public class HorsePlugin extends JavaPlugin implements Listener {
 			if (!rentals.isRenting(p)) {
 				try {
 					rentals.rent(p, p, minutes);
+					return true;
 				} catch (InsufficientResourcesException e) {
-
 					return true;
 				} catch (RuntimeException e) {
 					sender.sendMessage("Unable to process payment. Please check your funds.");
 					return true;
 				}
 			} else {
-				/*
-				 * sender.sendMessage(p.getName() + " has " +
-				 * rentals.getRemainingTime(p) / 1000 + " seconds remaining.");
-				 */
 				try {
 					rentals.increaseTimelimit(p, p, minutes);
 				} catch (InsufficientResourcesException e) {
 					return true;
 				}
 			}
+		} else {
+			sender.sendMessage("Insufficient permissions to rent horses.");
 		}
 		return true;
 	}
@@ -187,6 +211,7 @@ public class HorsePlugin extends JavaPlugin implements Listener {
 	private boolean reloadConfiguration() {
 		reloadConfig();
 		CinnaHorse.config = getConfig();
+		rentals.setConfig(getConfig().getConfigurationSection("Rental"));
 		return true;
 	}
 
