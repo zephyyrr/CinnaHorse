@@ -40,7 +40,9 @@ public class CinnaHorse {
 	private static Horse spawnHorse(Location l) {
 		Horse h = (Horse) l.getWorld().spawnEntity(l,
 				EntityType.HORSE);
+		h.setVariant(Variant.HORSE);
 		h.setAdult();
+		h.setBreed(false);
 		h.getInventory().setSaddle(new ItemStack(Material.SADDLE));
 		h.setRemoveWhenFarAway(true);
 		return h;
