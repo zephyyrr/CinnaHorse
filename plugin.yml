@@ -3,28 +3,73 @@ author: Johan "Zephyyrr" Fogelstrom
 main: se.zephyyrr.minecraft.tod.cinnahorse.HorsePlugin
 version: 1.0
 website: http://talesofdertinia.com
+softdepend: ["Vault"]
 
 
 commands:
   horse:
-    description: Summons a awesome horse for admins to use to look awesome. Or reloads config file.
-    usage: /horse {summon, reload, list, rent} [player]
-    permission: cinnahorse.spawn
+    description: Handle everything horses with this command.
+    usage: "/horse {summon|reload|list|rent|time} [player] {minutes if rent}"
+    permission: cinnahorse
     
 permissions:
+  cinnahorse:
+    description: Gives access to the /horse command.
+    default: true
+    
+  cinnahorse.all:
+    description: Gives full access to the entire cinnahorse feature set
+    default: false
+    children:
+      cinnahorse: true
+      cinnahorse.summon: true
+      cinnahorse.rent: true
+      cinnahorse.list: true
+      cinnahorse.time: true
+      cinnahorse.summon.others: true
+      cinnahorse.rent.others: true
+      cinnahorse.list.others: true
+      cinnahorse.time.others: true
+    
   cinnahorse.summon:
     description: Allows access to the CinnaHorse "summon" command.
     default: op
+    children:
+      cinnahorse: true
+    
   cinnahorse.rent:
     description: Allows renting horses.
-    default: op
+    default: false
+    children:
+      cinnahorse: true
+    
   cinnahorse.rent.others:
     description: Allows renting horses for others.
     default: op
+    children:
+      cinnahorse.rent: true
+      
   cinnahorse.list:
     description: Allows listing horses.
-    default: op
+    default: true
+    children:
+      cinnahorse: true
+      
   cinnahorse.list.others:
     description: Allows listing horses for others.
     default: op
+    children:
+      cinnahorse.list: true
+      
+  cinnahorse.time:
+    description: Allows checking remaining rental time.
+    default: true
+    children:
+      cinnahorse: true
+      
+  cinnahorse.time.others:
+    description: Allows checking remaining rental time of others.
+    default: op
+    children:
+      cinnahorse.time: true
   
