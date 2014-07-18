@@ -60,16 +60,25 @@ public class RentalAgency {
 			p.getLogger().warning("Disabling economics of rentals.");
 		}
 
-		p.getServer().getScheduler().runTaskTimer(p, () -> {
-			// Loop over all rentals
-				for (Map.Entry<Player, Calendar> e : timelimits.entrySet()) {
-					// If timelimit expired
-				if (getRemainingTime(e.getKey()) < 1) {
-					// "Return" horse.
-					revoke(e.getKey());
-				}
-			}
-		}, 10, 10);
+		p.getServer()
+				.getScheduler()
+				.runTaskTimer(p, () -> {
+					// Loop over all rentals
+					for (Map.Entry<Player, Calendar> e : timelimits
+							.entrySet()) {
+						//Sanity check
+						if (!rentals.containsKey(e.getKey())) {
+							p.getLogger().info("Sanity check failed. Timelimit without matching rental.");
+							timelimits.remove(e.getKey());
+						}
+						// If timelimit expired
+						if (getRemainingTime(e.getKey()) < 1
+								|| rentals.get(e.getKey()).isDead()) {
+							// "Return" horse.
+							revoke(e.getKey());
+						}
+					}
+				}, 10, 10);
 	}
 
 	public Horse rent(Player rider, int ticks)
@@ -79,14 +88,15 @@ public class RentalAgency {
 
 	public Horse rent(Player rider, CommandSender payer, int minutes)
 			throws InsufficientResourcesException {
-		//Check for all requirements
-		
+		// Check for all requirements
+
 		if (!free && payer instanceof Player) {
 			// Only players are supported payers
 			Player ppayer = (Player) payer;
 			boolean payDeposit = rider.equals(payer);
-			
-			if (!econ.has(ppayer, getRentCost(minutes) + (payDeposit ? getDeposit() : 0))) {
+
+			if (!econ.has(ppayer, getRentCost(minutes)
+					+ (payDeposit ? getDeposit() : 0))) {
 				payer.sendMessage("Not enough money to pay the rent.");
 				payer.sendMessage("The cost is " + getRentCost(minutes)
 						+ " and " + getDeposit() + " in deposit.");
@@ -97,7 +107,8 @@ public class RentalAgency {
 				EconomyResponse resp = econ.withdrawPlayer(ppayer,
 						getRentCost(minutes));
 				if (!resp.transactionSuccess()) {
-					throw new RuntimeException("Unsuccessfull payment transaction.");
+					throw new RuntimeException(
+							"Unsuccessfull payment transaction.");
 				}
 			}
 
@@ -105,7 +116,8 @@ public class RentalAgency {
 				EconomyResponse resp = econ
 						.withdrawPlayer(ppayer, getDeposit());
 				if (!resp.transactionSuccess()) {
-					throw new RuntimeException("Unsuccessfull deposit transaction.");
+					throw new RuntimeException(
+							"Unsuccessfull deposit transaction.");
 				}
 				deposits.put(rider, getDeposit());
 			}
@@ -118,7 +130,7 @@ public class RentalAgency {
 			// TODO check for and grab a saddle from player if config says so.
 			if (rider.getInventory().contains(Material.SADDLE)
 					&& !config.getBoolean("FreeSaddles", false)) {
-				
+
 				int pos = rider.getInventory().first(Material.SADDLE);
 				ItemStack saddles = rider.getInventory().getItem(pos);
 				if (saddles.getAmount() == 1) {
@@ -141,15 +153,17 @@ public class RentalAgency {
 
 		return h;
 	}
-	
-	public void increaseTimelimit(Player rider, Player payer, int minutes) throws InsufficientResourcesException {
+
+	public void increaseTimelimit(Player rider, Player payer, int minutes)
+			throws InsufficientResourcesException {
 		if (!timelimits.containsKey(rider)) {
 			return;
 		}
-		if (!free) {			
+		if (!free) {
 			if (!econ.has(payer, getRentCost(minutes))) {
 				payer.sendMessage("Not enough money to pay the rent.");
-				payer.sendMessage("The cost is " + getRentCost(minutes) + " " + econ.currencyNamePlural() + ".");
+				payer.sendMessage("The cost is " + getRentCost(minutes) + " "
+						+ econ.currencyNamePlural() + ".");
 				throw new InsufficientResourcesException();
 			}
 
@@ -157,23 +171,27 @@ public class RentalAgency {
 				EconomyResponse resp = econ.withdrawPlayer(payer,
 						getRentCost(minutes));
 				if (!resp.transactionSuccess()) {
-					throw new RuntimeException("Unsuccessfull payment transaction.");
+					throw new RuntimeException(
+							"Unsuccessfull payment transaction.");
 				}
 			}
 		}
-		
+
 		timelimits.get(rider).add(Calendar.MINUTE, minutes);
 	}
 
 	private void refund(Player rider, CommandSender payer, int minutes) {
 		if (!free && payer instanceof Player) {
-			econ.depositPlayer((Player) payer, getRentCost(minutes) + 
-				(deposits.containsKey(rider) ? deposits.get(rider) : 0));
+			econ.depositPlayer(
+					(Player) payer,
+					getRentCost(minutes)
+							+ (deposits.containsKey(rider) ? deposits
+									.get(rider) : 0));
 		}
 	}
 
 	public double getRentCost(int minutes) {
-		return config.getDouble("Cost", 1)*minutes;
+		return config.getDouble("Cost", 1) * minutes;
 	}
 
 	public double getDeposit() {
@@ -199,13 +217,17 @@ public class RentalAgency {
 		if (deposits.containsKey(p) && !rentals.get(p).isDead()) {
 			econ.depositPlayer(p, deposits.get(p));
 		}
-		if (rentals.get(p).getInventory().getSaddle().getType() == Material.SADDLE) {
-			int pos = p.getInventory().firstEmpty();
-			if (pos != -1) {
-				p.getInventory().setItem(pos, new ItemStack(Material.SADDLE));
+		{
+			ItemStack saddle = rentals.get(p).getInventory().getSaddle();
+			if (saddle != null && saddle.getType() == Material.SADDLE) {
+				int pos = p.getInventory().firstEmpty();
+				if (pos != -1) {
+					saddle.setType(Material.AIR);
+					p.getInventory().setItem(pos, new ItemStack(Material.SADDLE));
+				}
 			}
 		}
-		deposits.remove(p);
+		deposits.remove(p); 
 		rentals.get(p).setHealth(0);
 		rentals.remove(p);
 		timelimits.remove(p);
@@ -218,5 +240,9 @@ public class RentalAgency {
 		} else {
 			return 0;
 		}
+	}
+
+	public void setConfig(ConfigurationSection config) {
+		this.config = config;
 	}
 }
